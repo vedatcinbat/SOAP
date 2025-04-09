@@ -4,6 +4,7 @@ using CoreWCF.Description;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using SoapServiceProject.Services.Banking;
+using SoapServiceProject.Services.Inventory;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,15 +16,15 @@ var app = builder.Build();
 
 app.UseServiceModel(serviceBuilder =>
 {
-    // Register your service.
     serviceBuilder.AddService<BankingService>();
+    serviceBuilder.AddService<InventoryService>();
 
-    // Add the SOAP endpoint using BasicHttpBinding.
     serviceBuilder.AddServiceEndpoint<BankingService, IBankingService>(
         new BasicHttpBinding(), "/BankingService.svc");
 
-    // Configure the service host to add a metadata behavior.
-    // This enables WSDL to be generated via HTTP GET.
+    serviceBuilder.AddServiceEndpoint<InventoryService, IInventoryService>(
+        new BasicHttpBinding(), "/InventoryService.svc");
+
     serviceBuilder.ConfigureServiceHostBase<BankingService>(host =>
     {
         var smb = host.Description.Behaviors.Find<ServiceMetadataBehavior>();
@@ -36,6 +37,20 @@ app.UseServiceModel(serviceBuilder =>
             smb.HttpGetEnabled = true;
         }
     });
+
+    serviceBuilder.ConfigureServiceHostBase<InventoryService>(host =>
+    {
+        var smb = host.Description.Behaviors.Find<ServiceMetadataBehavior>();
+        if (smb == null)
+        {
+            host.Description.Behaviors.Add(new ServiceMetadataBehavior { HttpGetEnabled = true });
+        }
+        else
+        {
+            smb.HttpGetEnabled = true;
+        }
+    });
+    
 });
 
 app.Run();
