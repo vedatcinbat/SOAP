@@ -11,5 +11,8 @@ namespace SoapServiceProject.Services.Inventory {
 
         [OperationContract]
         bool SetReorderLevel(string productId, int reorderLevel);
+
+        [OperationContract]
+        string CreateProduct(string productId, string name, int stock, int reorderLevel);
     }
 }

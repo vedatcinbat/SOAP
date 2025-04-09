@@ -5,12 +5,24 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using SoapServiceProject.Services.Banking;
 using SoapServiceProject.Services.Inventory;
+using SoapServiceProject.Data;
+using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Register CoreWCF services and metadata services.
 builder.Services.AddServiceModelServices();
 builder.Services.AddServiceModelMetadata();
+
+// Register EF Core with MySQL
+var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
+builder.Services.AddDbContext<TestDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+// Register your SOAP services.
+builder.Services.AddScoped<BankingService>(); // if needed
+builder.Services.AddScoped<InventoryService>();
 
 var app = builder.Build();
 
